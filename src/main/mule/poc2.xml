@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="055d8076-c9a4-4d56-b2a3-a5ff39579374" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="e8e4e26c-ba4a-4525-bbd1-005aa7603e6c" >
+		<db:my-sql-connection host="${databasetest.host}" port="${databasetest.port}" user="${databasetest.user}" password="${databasetest.password}" />
+	</db:config>
+	<configuration-properties doc:name="Configuration properties" doc:id="f809fad1-6bb8-4aab-80ce-61164b7bca1f" file="dataconfig.yaml" />
+	<flow name="poc2Flow" doc:id="e28d38ea-7f21-4ed3-a129-65bd78bc2553" >
+		<http:listener doc:name="Listener" doc:id="26c4f3d3-4fc6-4d25-91bc-d9ab375380e3" config-ref="HTTP_Listener_config" path="/databasetest" allowedMethods="GET"/>
+		<db:select doc:name="databasetest" doc:id="403864ef-7aba-48ed-8bc9-2befd37ba1fd" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT * FROM flight_booking.booking_db;]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="3cf88026-23b2-44d8-a16d-d2c77f111fdb" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
